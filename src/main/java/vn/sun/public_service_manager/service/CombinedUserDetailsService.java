@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CombinedUserDetailsService implements UserDetailsService {
@@ -31,13 +32,14 @@ public class CombinedUserDetailsService implements UserDetailsService {
         Optional<User> userOpt = userRepository.findByUsername(identifier);
         if (userOpt.isPresent()) {
             User user = userOpt.get();
-            List<SimpleGrantedAuthority> authorities = Collections.singletonList(
-                    new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
+            List<SimpleGrantedAuthority> authorities = user.getRoles().stream()
+                    .map(role -> new SimpleGrantedAuthority(role.getName()))
+                    .collect(Collectors.toList());
 
             return new org.springframework.security.core.userdetails.User(
                     user.getUsername(),
                     user.getPassword(),
-                    user.getActive() ? Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole().name())) : Collections.emptyList()
+                    user.getActive() ? authorities : Collections.emptyList()
             );
         }
 
