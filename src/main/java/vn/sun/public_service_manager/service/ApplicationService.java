@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import vn.sun.public_service_manager.dto.ApplicationDTO;
+import vn.sun.public_service_manager.dto.ApplicationFilterDTO;
 import vn.sun.public_service_manager.dto.response.ApplicationResDTO;
 import vn.sun.public_service_manager.entity.Application;
 
@@ -17,4 +18,7 @@ public interface ApplicationService {
     void uploadMoreDocuments(Long applicationId, MultipartFile[] files);
 
     Page<ApplicationDTO> getApplicationsByCitizen(String nationalId, Pageable pageable);
+    
+    // Admin methods
+    Page<ApplicationDTO> getAllApplications(ApplicationFilterDTO filter, Pageable pageable);
 }
