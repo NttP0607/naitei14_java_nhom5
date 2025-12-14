@@ -35,10 +35,12 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // API Auth cho Citizen
                         .requestMatchers("/api/citizen/auth/**", "/static/**").permitAll()
+                        .requestMatchers("/services/**").permitAll()
                         // Admin MVC routes
                         .requestMatchers("/admin/login", "/admin/logout").permitAll()
                         // Restrict admin dashboard to specific roles
                         .requestMatchers("/admin/dashboard").hasAnyAuthority("ROLE_ADMIN", "ROLE_MANAGER", "ROLE_STAFF")
+                        .requestMatchers("/admin/**").authenticated()
                         // Yêu cầu xác thực cho tất cả các API khác
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
