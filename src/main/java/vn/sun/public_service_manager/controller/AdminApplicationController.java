@@ -5,6 +5,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +18,7 @@ import vn.sun.public_service_manager.dto.ApplicationFilterDTO;
 import vn.sun.public_service_manager.dto.request.AssignStaffDTO;
 import vn.sun.public_service_manager.dto.request.UpdateApplicationStatusDTO;
 import vn.sun.public_service_manager.dto.response.ApplicationResDTO;
+import vn.sun.public_service_manager.entity.User;
 import vn.sun.public_service_manager.repository.UserRepository;
 import vn.sun.public_service_manager.service.ApplicationService;
 import vn.sun.public_service_manager.service.ServiceTypeService;
@@ -41,6 +44,7 @@ public class AdminApplicationController {
             @RequestParam(required = false) String citizenNationalId,
             @RequestParam(required = false) String citizenName,
             @RequestParam(required = false) Long assignedStaffId,
+            Authentication authentication,
             Model model) {
 
         // Build filter
@@ -51,6 +55,24 @@ public class AdminApplicationController {
         filter.setCitizenNationalId(citizenNationalId);
         filter.setCitizenName(citizenName);
         filter.setAssignedStaffId(assignedStaffId);
+
+        // Check if user is staff
+        boolean isStaff = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch(role -> role.equals("ROLE_STAFF"));
+
+        if (isStaff) {
+            // Nếu là STAFF, chỉ lấy applications được gán cho staff đó
+            String username = authentication.getName();
+            User currentUser = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            filter.setAssignedStaffId(currentUser.getId());
+            model.addAttribute("isStaff", true);
+        } else {
+            // ADMIN hoặc MANAGER xem hết
+            model.addAttribute("isStaff", false);
+        }
 
         // Create pageable with sorting by submitted date descending
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "submittedAt"));
@@ -72,6 +94,7 @@ public class AdminApplicationController {
 
         return "admin/application_list";
     }
+
     @GetMapping("/{id}")
     public String viewApplicationDetail(@PathVariable Long id, Model model) {
         try {
@@ -87,9 +110,10 @@ public class AdminApplicationController {
     }
 
     @PostMapping("/{id}/update-status")
-    public String updateStatus(@PathVariable Long id, 
-                               @ModelAttribute UpdateApplicationStatusDTO dto,
-                               RedirectAttributes redirectAttributes) {
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_STAFF')")
+    public String updateStatus(@PathVariable Long id,
+            @ModelAttribute UpdateApplicationStatusDTO dto,
+            RedirectAttributes redirectAttributes) {
         try {
             dto.setApplicationId(id);
             applicationService.updateApplicationStatus(dto);
@@ -102,8 +126,8 @@ public class AdminApplicationController {
 
     @PostMapping("/{id}/assign-staff")
     public String assignStaff(@PathVariable Long id,
-                              @ModelAttribute AssignStaffDTO dto,
-                              RedirectAttributes redirectAttributes) {
+            @ModelAttribute AssignStaffDTO dto,
+            RedirectAttributes redirectAttributes) {
         try {
             dto.setApplicationId(id);
             applicationService.assignStaffToApplication(dto);

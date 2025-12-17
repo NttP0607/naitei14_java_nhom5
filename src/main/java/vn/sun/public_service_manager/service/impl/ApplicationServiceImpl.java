@@ -41,7 +41,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             ApplicationRepository applicationRepository,
             ServiceRepository serviceRepository,
             ApplicationStatusRepository applicationStatusRepository,
-            ApplicationDocumentRepository applicationDocumentRepository, 
+            ApplicationDocumentRepository applicationDocumentRepository,
             CitizenRepository citizenRepository,
             UserRepository userRepository,
             SecurityUtil securityUtil) {
@@ -89,7 +89,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     public ApplicationResDTO getApplicationById(Long id) {
         Application application = applicationRepository.findByIdWithDetails(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Application not found with id: " + id));
-        
+
         // Force load lazy collections within transaction
         if (application.getStatuses() != null) {
             application.getStatuses().size();
@@ -100,20 +100,21 @@ public class ApplicationServiceImpl implements ApplicationService {
         if (application.getService() != null && application.getService().getServiceRequirements() != null) {
             application.getService().getServiceRequirements().size();
         }
-        
+
         ApplicationResDTO dto = mapToDTO(application);
-        
+
         // Debug output
         System.out.println("==== Application Detail Debug ====");
         System.out.println("Application ID: " + application.getId());
         System.out.println("Application Code: " + application.getApplicationCode());
         System.out.println("Submitted At: " + application.getSubmittedAt());
-        System.out.println("Statuses: " + (application.getStatuses() != null ? application.getStatuses().size() : "null"));
+        System.out.println(
+                "Statuses: " + (application.getStatuses() != null ? application.getStatuses().size() : "null"));
         System.out.println("DTO Code: " + dto.getCode());
         System.out.println("DTO SubmittedAt: " + dto.getSubmittedAt());
         System.out.println("DTO Status: " + dto.getStatus());
         System.out.println("==================================");
-        
+
         return dto;
     }
 
@@ -158,7 +159,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             serviceDTO.setProcessingTime(application.getService().getProcessingTime());
             serviceDTO.setFee(application.getService().getFee());
             dto.setService(serviceDTO);
-            
+
             // Map requirements
             if (application.getService().getServiceRequirements() != null) {
                 dto.setRequirements(
@@ -187,6 +188,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         return dto;
     }
+
     @Override
     @Transactional(readOnly = true)
     public Page<ApplicationDTO> getApplicationsByCitizen(String nationalId, Pageable pageable) {
@@ -216,8 +218,9 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Transactional
     public void updateApplicationStatus(UpdateApplicationStatusDTO dto) {
         Application application = applicationRepository.findById(dto.getApplicationId())
-                .orElseThrow(() -> new ResourceNotFoundException("Application not found with id: " + dto.getApplicationId()));
-        
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Application not found with id: " + dto.getApplicationId()));
+
         // Create new status record
         ApplicationStatus status = new ApplicationStatus();
         status.setApplication(application);
@@ -225,9 +228,9 @@ public class ApplicationServiceImpl implements ApplicationService {
         status.setNote(dto.getNote());
         status.setUpdatedAt(LocalDateTime.now());
         // TODO: Set updatedBy from current user
-        
+
         applicationStatusRepository.save(status);
-        
+
         // Upload response documents if any
         if (dto.getDocuments() != null && dto.getDocuments().length > 0) {
             for (MultipartFile file : dto.getDocuments()) {
@@ -247,20 +250,21 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Transactional
     public void assignStaffToApplication(AssignStaffDTO dto) {
         Application application = applicationRepository.findById(dto.getApplicationId())
-                .orElseThrow(() -> new ResourceNotFoundException("Application not found with id: " + dto.getApplicationId()));
-        
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Application not found with id: " + dto.getApplicationId()));
+
         User staff = userRepository.findById(dto.getStaffId())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + dto.getStaffId()));
-        
+
         application.setAssignedStaff(staff);
         applicationRepository.save(application);
-        
+
         // Create status log for assignment
         if (dto.getNote() != null && !dto.getNote().isEmpty()) {
             ApplicationStatus status = new ApplicationStatus();
             status.setApplication(application);
-            status.setStatus(application.getStatuses().isEmpty() ? StatusEnum.PROCESSING : 
-                             application.getStatuses().get(0).getStatus());
+            status.setStatus(application.getStatuses().isEmpty() ? StatusEnum.PROCESSING
+                    : application.getStatuses().get(0).getStatus());
             status.setNote(dto.getNote());
             status.setUpdatedAt(LocalDateTime.now());
             // TODO: Set updatedBy from current user
