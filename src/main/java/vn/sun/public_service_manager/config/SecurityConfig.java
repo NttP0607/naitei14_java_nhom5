@@ -30,15 +30,14 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        String[] whiteList = {
+                "/api/citizen/auth/**", "/static/**", "/services/**",
+                "/admin/login", "/admin/logout"
+        };
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // API Auth cho Citizen
-                        .requestMatchers("/api/citizen/auth/**", "/static/**").permitAll()
-                        .requestMatchers("/services/**").permitAll()
-                        // Admin MVC routes
-                        .requestMatchers("/admin/login", "/admin/logout").permitAll()
-                        // Restrict admin dashboard to specific roles
+                        .requestMatchers(whiteList).permitAll()
                         .requestMatchers("/admin/dashboard").hasAnyAuthority("ROLE_ADMIN", "ROLE_MANAGER", "ROLE_STAFF")
                         .requestMatchers("/admin/**").authenticated()
                         .requestMatchers("/admin/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_MANAGER", "ROLE_STAFF")
