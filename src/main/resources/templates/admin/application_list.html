@@ -155,17 +155,20 @@
                                         <td th:text="${#temporals.format(app.submittedAt, 'dd/MM/yyyy HH:mm')}"></td>
                                         <td>
                                             <!-- Status Badges -->
-                                            <span th:if="${app.status.name() == 'APPROVED'}" class="badge bg-success">
+                                            <span th:if="${app.status != null and app.status.name() == 'APPROVED'}"
+                                                class="badge bg-success">
                                                 <i class="bi bi-check-circle"></i> Đã phê duyệt
                                             </span>
-                                            <span th:if="${app.status.name() == 'REJECTED'}" class="badge bg-danger">
+                                            <span th:if="${app.status != null and app.status.name() == 'REJECTED'}"
+                                                class="badge bg-danger">
                                                 <i class="bi bi-x-circle"></i> Đã từ chối
                                             </span>
-                                            <span th:if="${app.status.name() == 'PROCESSING'}"
+                                            <span th:if="${app.status != null and app.status.name() == 'PROCESSING'}"
                                                 class="badge bg-warning text-dark">
                                                 <i class="bi bi-hourglass-split"></i> Đang xử lý
                                             </span>
-                                            <span th:if="${app.status.name() == 'RECEIVED'}" class="badge bg-info">
+                                            <span th:if="${app.status != null and app.status.name() == 'RECEIVED'}"
+                                                class="badge bg-info">
                                                 <i class="bi bi-inbox"></i> Đã tiếp nhận
                                             </span>
                                             <span th:if="${app.status == null}" class="badge bg-secondary">
