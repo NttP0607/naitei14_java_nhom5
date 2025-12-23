@@ -63,7 +63,7 @@ public class Application {
     private List<ApplicationDocument> documents;
 
     @OneToMany(mappedBy = "application")
-    @OrderBy("updatedAt DESC")
+    @OrderBy("id DESC")
     private List<ApplicationStatus> statuses;
 
     @PrePersist
