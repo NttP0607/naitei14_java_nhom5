@@ -1,5 +1,6 @@
 package vn.sun.public_service_manager.controller;
 
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import vn.sun.public_service_manager.entity.Service;
 import vn.sun.public_service_manager.service.ServiceManagementService;
@@ -13,7 +14,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("/admin/services-disabled")
+@RequestMapping("/admin/services")
 @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_STAFF')")
 public class AdminServiceController {
 
@@ -22,21 +23,27 @@ public class AdminServiceController {
 
     @GetMapping
     public String listServices(
+            Model model,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortBy,
-            @RequestParam(defaultValue = "ASC") String sortDir,
+            @RequestParam(defaultValue = "asc") String sortDir,
             @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) Long serviceTypeId,
-            Model model) {
+            @RequestParam(required = false) Long serviceTypeId) {
 
-        model.addAttribute("servicePage",
-                serviceManagementService.getServices(page, size, sortBy, sortDir, keyword, serviceTypeId));
+        Page<Service> servicePage = serviceManagementService.getServices(
+                page, size, sortBy, sortDir, keyword, serviceTypeId);
+
+        model.addAttribute("servicePage", servicePage);
         model.addAttribute("serviceTypes", serviceTypeService.getAllServiceTypes());
-        model.addAttribute("sortBy", sortBy);
-        model.addAttribute("sortDir", sortDir);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", servicePage.getTotalPages());
+        model.addAttribute("totalItems", servicePage.getTotalElements());
+
         model.addAttribute("keyword", keyword);
         model.addAttribute("serviceTypeId", serviceTypeId);
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("sortDir", sortDir);
 
         return "admin/service_list";
     }
@@ -63,7 +70,7 @@ public class AdminServiceController {
             return "admin/service_form";
         } catch (RuntimeException e) {
             ra.addFlashAttribute("errorMessage", e.getMessage());
-            return "redirect:/services/list";
+            return "redirect:/admin/services";
         }
     }
 
@@ -90,9 +97,9 @@ public class AdminServiceController {
         } catch (Exception e) {
             ra.addFlashAttribute("errorMessage", "Không thể xóa dịch vụ ID " + id + ".");
         }
-        return "redirect:/services/list";
+        return "redirect:/admin/services";
     }
-    
+
     @LogActivity(action = "Quản lý dịch vụ - Khôi phục dịch vụ", targetType = "SERVICE")
     @GetMapping("/restore/{id}")
     public String restoreService(@PathVariable Long id, RedirectAttributes ra) {
@@ -102,6 +109,6 @@ public class AdminServiceController {
         } catch (Exception e) {
             ra.addFlashAttribute("errorMessage", "Không thể khôi phục dịch vụ ID " + id + ".");
         }
-        return "redirect:/services/list";
+        return "redirect:/admin/services";
     }
 }

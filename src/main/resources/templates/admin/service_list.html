@@ -43,7 +43,7 @@
                             </div>
                             <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
 
-                            <form th:action="@{/services/list}" method="get" class="mb-4">
+                            <form th:action="@{/admin/services}" method="get" class="mb-4">
                                 <div class="row align-items-end">
                                     <div class="col-md-4">
                                         <label class="form-label">Loại Dịch vụ</label>
@@ -67,7 +67,7 @@
                                         <button type="submit" class="btn btn-primary me-2">
                                             <i class="bi bi-search"></i> Tìm kiếm
                                         </button>
-                                        <a th:href="@{/services/list}" class="btn btn-secondary">
+                                        <a th:href="@{/admin/services}" class="btn btn-secondary">
                                             <i class="bi bi-arrow-clockwise"></i> Reset
                                         </a>
                                     </div>
@@ -79,7 +79,7 @@
                                     <thead class="table-dark">
                                         <tr>
                                             <th><a
-                                                    th:href="@{/services/list(page=${servicePage.number}, size=${servicePage.size}, sortBy='id', sortDir=${sortBy == 'id' and sortDir == 'asc' ? 'desc' : 'asc'}, keyword=${keyword}, serviceTypeId=${serviceTypeId})}">ID</a>
+                                                    th:href="@{/admin/services(page=${servicePage.number}, size=${servicePage.size}, sortBy='id', sortDir=${sortBy == 'id' and sortDir == 'asc' ? 'desc' : 'asc'}, keyword=${keyword}, serviceTypeId=${serviceTypeId})}">ID</a>
                                             </th>
                                             <th>Mã</th>
                                             <th>Tên Dịch vụ</th>
@@ -140,11 +140,11 @@
                                 <ul class="pagination justify-content-center">
                                     <li th:class="${servicePage.number == 0 ? 'page-item disabled' : 'page-item'}">
                                         <a class="page-link"
-                                            th:href="@{/services/list(page=0, size=${servicePage.size}, sortBy=${sortBy}, sortDir=${sortDir}, keyword=${keyword}, serviceTypeId=${serviceTypeId})}">Đầu</a>
+                                            th:href="@{/admin/services(page=0, size=${servicePage.size}, sortBy=${sortBy}, sortDir=${sortDir}, keyword=${keyword}, serviceTypeId=${serviceTypeId})}">Đầu</a>
                                     </li>
                                     <li th:class="${servicePage.number == 0 ? 'page-item disabled' : 'page-item'}">
                                         <a class="page-link"
-                                            th:href="@{/services/list(page=${servicePage.number - 1}, size=${servicePage.size}, sortBy=${sortBy}, sortDir=${sortDir}, keyword=${keyword}, serviceTypeId=${serviceTypeId})}">Trước</a>
+                                            th:href="@{/admin/services(page=${servicePage.number - 1}, size=${servicePage.size}, sortBy=${sortBy}, sortDir=${sortDir}, keyword=${keyword}, serviceTypeId=${serviceTypeId})}">Trước</a>
                                     </li>
 
                                     <th:block
@@ -152,7 +152,7 @@
                                         <li th:each="i : ${#numbers.sequence(startPage, endPage)}"
                                             th:class="${i == servicePage.number ? 'page-item active' : 'page-item'}">
                                             <a class="page-link"
-                                                th:href="@{/services/list(page=${i}, size=${servicePage.size}, sortBy=${sortBy}, sortDir=${sortDir}, keyword=${keyword}, serviceTypeId=${serviceTypeId})}"
+                                                th:href="@{/admin/services(page=${i}, size=${servicePage.size}, sortBy=${sortBy}, sortDir=${sortDir}, keyword=${keyword}, serviceTypeId=${serviceTypeId})}"
                                                 th:text="${i + 1}"></a>
                                         </li>
                                     </th:block>
@@ -160,12 +160,12 @@
                                     <li
                                         th:class="${servicePage.number == servicePage.totalPages - 1 ? 'page-item disabled' : 'page-item'}">
                                         <a class="page-link"
-                                            th:href="@{/services/list(page=${servicePage.number + 1}, size=${servicePage.size}, sortBy=${sortBy}, sortDir=${sortDir}, keyword=${keyword}, serviceTypeId=${serviceTypeId})}">Sau</a>
+                                            th:href="@{/admin/services(page=${servicePage.number + 1}, size=${servicePage.size}, sortBy=${sortBy}, sortDir=${sortDir}, keyword=${keyword}, serviceTypeId=${serviceTypeId})}">Sau</a>
                                     </li>
                                     <li
                                         th:class="${servicePage.number == servicePage.totalPages - 1 ? 'page-item disabled' : 'page-item'}">
                                         <a class="page-link"
-                                            th:href="@{/services/list(page=${servicePage.totalPages - 1}, size=${servicePage.size}, sortBy=${sortBy}, sortDir=${sortDir}, keyword=${keyword}, serviceTypeId=${serviceTypeId})}">Cuối</a>
+                                            th:href="@{/admin/services(page=${servicePage.totalPages - 1}, size=${servicePage.size}, sortBy=${sortBy}, sortDir=${sortDir}, keyword=${keyword}, serviceTypeId=${serviceTypeId})}">Cuối</a>
                                     </li>
                                 </ul>
                             </nav>
