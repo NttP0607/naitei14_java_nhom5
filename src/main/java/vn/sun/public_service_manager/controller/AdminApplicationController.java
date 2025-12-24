@@ -155,8 +155,8 @@ public class AdminApplicationController {
             Role staffRole = roleRepository.findByName("ROLE_STAFF").orElse(null);
             // Nếu service có responsible department, lấy staff của department đó
             if (service.getResponsibleDepartment() != null) {
-                staffList = userRepository.findByDepartmentAndRoles(service.getResponsibleDepartment(),
-                        Collections.singletonList(staffRole));
+                staffList = userRepository.findByDepartmentAndRolesAndActive(service.getResponsibleDepartment(),
+                        Collections.singletonList(staffRole), true);
 
             } else {
                 // Nếu service không có department chịu trách nhiệm, không hiện staff nào

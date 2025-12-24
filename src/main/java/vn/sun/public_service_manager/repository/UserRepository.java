@@ -18,5 +18,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT u FROM User u JOIN u.roles r WHERE r.name = 'ROLE_STAFF'")
     List<User> findAllStaff();
 
-    List<User> findByDepartmentAndRoles(Department department, List<Role> roles);
+    List<User> findByDepartmentAndRolesAndActive(Department department, List<Role> roles, Boolean active);
 }

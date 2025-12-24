@@ -87,14 +87,15 @@ public class CitizenAuthController {
                                                                 "fullName", savedCitizen.getFullName(),
                                                                 "email", savedCitizen.getEmail())));
         }
+
         @PostMapping("/login")
         @LogActivity(action = "Citizen Login", targetType = "CITIZEN AUTH", description = "Đăng nhập hệ thống công dân")
         @ApiMessage("Đăng nhập thành công")
         public ResponseEntity<?> login(@RequestBody @Valid LoginDto loginDto) {
                 try {
                         Authentication authentication = authenticationManager.authenticate(
-                                new UsernamePasswordAuthenticationToken(loginDto.getNationalId(),
-                                        loginDto.getPassword()));
+                                        new UsernamePasswordAuthenticationToken(loginDto.getNationalId(),
+                                                        loginDto.getPassword()));
                         SecurityContextHolder.getContext().setAuthentication(authentication);
 
                         String token = jwtService.generateToken(loginDto.getNationalId());
